@@ -67,19 +67,20 @@ func main() {
 
 		var filename string
 		if c.String("file") == "" {
-			filename = ""
+			filename = "output." + c.String("out")
 		} else {
 			filename = c.String("file")
 		}
 
-		var out weint.OutInterface
-
 		switch c.String("out") {
 		case "csv":
+			spider.Out(&weint.FileCSVOut{FileOut: weint.FileOut{Filename: filename}})
 		case "json":
+			spider.Out(&weint.FileJsonOut{FileOut: weint.FileOut{Filename: filename}})
 		case "db":
+			spider.Out(&weint.SQLiteOut{DBName: filename})
 		case "elastic":
-			spider.Out(weint.ElasticOut{Host: c.String("host")})
+			spider.Out(&weint.ElasticOut{Host: c.String("host")})
 		default:
 			return errors.New("output type you input is not supported yet")
 		}
