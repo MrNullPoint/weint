@@ -14,7 +14,7 @@ func main() {
 			&cli.StringFlag{
 				Name:     "user",
 				Aliases:  []string{"u"},
-				Usage:    "set weibo user id",
+				Usage:    "set weibo user id, must set",
 				Required: true,
 			},
 			&cli.BoolFlag{
@@ -45,8 +45,8 @@ func main() {
 				Usage:   "set output filename",
 			},
 			&cli.StringFlag{
-				Name:        "host",
-				Aliases:     []string{"h"},
+				Name:        "elastic",
+				Aliases:     []string{"e"},
 				Usage:       "set elastic search address",
 				DefaultText: "127.0.0.1:9200",
 			},
@@ -73,6 +73,7 @@ func main() {
 		}
 
 		switch c.String("out") {
+		case "":
 		case "csv":
 			spider.Out(&weint.FileCSVOut{FileOut: weint.FileOut{Filename: filename}})
 		case "json":
@@ -80,7 +81,7 @@ func main() {
 		case "db":
 			spider.Out(&weint.SQLiteOut{DBName: filename})
 		case "elastic":
-			spider.Out(&weint.ElasticOut{Host: c.String("host")})
+			spider.Out(&weint.ElasticOut{Host: c.String("elastic")})
 		default:
 			return errors.New("output type you input is not supported yet")
 		}
