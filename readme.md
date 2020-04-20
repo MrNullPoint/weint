@@ -1,13 +1,13 @@
 # 微博爬虫非官方 API
 
-golang 版本非官方新浪微博采集 API，不需要微博 api  也不需要登录之后的 cookie
+golang 版本非官方新浪微博采集 API，不需要微博 api 也不需要登录之后的 cookie
 
 ## 安装方法
 
 命令行版本直接从 release 处下载，golang 方式通过下载依赖
 
 ```shell
-go get 
+go get
 ```
 
 ### 依赖
@@ -37,6 +37,7 @@ go get
 - 结果保存为 JSON 文件
 - 结果保存到 SQLite
 - 结果保存到 Elasticsearch
+  _TODO_
 
 ### 代码实现版本
 
