@@ -3,8 +3,8 @@ package Weint
 import "fmt"
 
 type OutInterface interface {
-	WriteUserInfo(info *UserInfo)
-	WriteWeiboInfo(info *WeiboInfo)
+	WriteUserInfo(info *UserInfo) error
+	WriteWeiboInfo(info *WeiboInfo) error
 }
 
 type ConsoleOut struct {
@@ -30,10 +30,12 @@ type FileJsonOut struct {
 	FileOut
 }
 
-func (o *ConsoleOut) WriteUserInfo(info *UserInfo) {
+func (o *ConsoleOut) WriteUserInfo(info *UserInfo) error {
 	fmt.Println()
+	return nil
 }
 
-func (o *ConsoleOut) WriteWeiboInfo(info *WeiboInfo) {
+func (o *ConsoleOut) WriteWeiboInfo(info *WeiboInfo) error {
 	fmt.Println()
+	return nil
 }
