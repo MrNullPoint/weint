@@ -21,6 +21,32 @@ go get
 
 从 release 中下载对应操作系统的二进制文件，指定参数运行
 
+```shell
+NAME:
+   A simple tool to get somebody's weibo data - A new cli application
+
+USAGE:
+   main [global options] command [command options] [arguments...]
+
+VERSION:
+   0.0.1
+
+COMMANDS:
+   help, h  Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --user value, -u value     set weibo user id, must set
+   --info, -i                 set this flag means you can get weibo user profile (default: true)
+   --weibo, -w                set this flag means you can get user weibo list (default: false)
+   --proxy value, -p value    set proxy
+   --out value, -o value      set output type, csv/json/db/elastic
+   --file value, -f value     set output filename
+   --elastic value, -e value  set elastic search address (default: 127.0.0.1:9200)
+   --help, -h                 show help (default: false)
+   --version, -v              print the version (default: false)
+
+```
+
 ### 代码实现版本
 
 参考 [godoc](http://demo.com) 或者样例
