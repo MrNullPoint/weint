@@ -30,14 +30,52 @@ go get
 ### 命令行版本
 
 - 获取指定用户信息
+
+```shell
+$ weint -u 用户id -i
+```
+
 - 获取指定用户微博
+
+```shell
+$ weint -u 用户id -w
+```
+
 - 指定代理
+
+```shell
+$ weint -u 用户id -p 127.0.0.1:1080
+```
+
 - 限制返回微博数量
+
+```shell
+$ weint -u 用户id -w -l 100
+```
+
 - 结果保存为 CSV
+
+```shell
+$ weint -u 用户id -w -o csv -f output.csv
+```
+
 - 结果保存为 JSON 文件
+
+```shell
+$ weint -u 用户id -w -o json -f output.json
+```
+
 - 结果保存到 SQLite
+
+```shell
+$ weint -u 用户id -w -o db -f output.db
+```
+
 - 结果保存到 Elasticsearch
-  _TODO_
+
+```shell
+$ weint -u 用户id -w -o elastic -h 127.0.0.1:9200
+```
 
 ### 代码实现版本
 
@@ -53,6 +91,7 @@ go get
 ## TODO
 
 - [ ] 获取指定用户粉丝和关注者
+- [ ] 支持多种代理模式
 
 ## Inspired By
 
