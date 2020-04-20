@@ -1,4 +1,4 @@
-package Weint
+package weint
 
 import "fmt"
 

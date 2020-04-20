@@ -1,4 +1,4 @@
-package Weint
+package weint
 
 const (
 	TYPE_INFO  = 1
