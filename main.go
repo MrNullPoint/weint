@@ -10,6 +10,7 @@ import (
 
 func main() {
 	app := &cli.App{
+		Version: "0.0.1",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
 				Name:     "user",
