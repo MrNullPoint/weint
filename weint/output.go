@@ -1,6 +1,9 @@
 package weint
 
-import "fmt"
+import (
+	"encoding/json"
+	"fmt"
+)
 
 type OutInterface interface {
 	WriteUserInfo(info *UserInfo) error
@@ -31,7 +34,8 @@ type FileJsonOut struct {
 }
 
 func (o *ConsoleOut) WriteUserInfo(info *UserInfo) error {
-	fmt.Println()
+	b, _ := json.Marshal(info)
+	fmt.Println(string(b))
 	return nil
 }
 

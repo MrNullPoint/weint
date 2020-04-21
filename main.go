@@ -22,12 +22,14 @@ func main() {
 			&cli.BoolFlag{
 				Name:        "info",
 				Aliases:     []string{"i"},
+				Value:       true,
 				DefaultText: "true",
 				Usage:       "set this flag means you can get weibo user profile",
 			},
 			&cli.BoolFlag{
 				Name:        "weibo",
 				Aliases:     []string{"w"},
+				Value:       false,
 				DefaultText: "false",
 				Usage:       "set this flag means you can get user weibo list",
 			},
@@ -50,6 +52,7 @@ func main() {
 				Name:        "elastic",
 				Aliases:     []string{"e"},
 				Usage:       "set elastic search address",
+				Value:       "127.0.0.1:9200",
 				DefaultText: "127.0.0.1:9200",
 			},
 		},
