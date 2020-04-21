@@ -3,10 +3,10 @@ package weint
 import (
 	"encoding/json"
 	"errors"
-	browser "github.com/EDDYCJY/fake-useragent"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"net/url"
+	"strconv"
 )
 
 const (
@@ -14,14 +14,26 @@ const (
 	TYPE_WEIBO = 1 << 1
 )
 
+type Type int64
+
+const (
+	Int64 Type = iota
+	String
+)
+
 const WEIBO_URL = "https://m.weibo.cn/api/container/getIndex"
 
 type WeiboResp struct {
 	Ok   int `json:"ok"`
 	Data struct {
-		UserInfo     UserInfo     `json:"userInfo"`
-		Scheme       string       `json:"scheme"`
-		Cards        []*WeiboInfo `json:"cards"`
+		UserInfo *UserInfo    `json:"userInfo"`
+		Cards    []*WeiboInfo `json:"cards"`
+		TabsInfo struct {
+			Tabs []struct {
+				TabKey      string `json:"tabKey"`
+				ContainerId string `json:"containerid"`
+			} `json:"tabs"`
+		} `json:"tabsInfo"`
 		CardListInfo struct {
 			SinceId uint64 `json:"since_id"`
 		} `json:"cardlistInfo"`
@@ -49,24 +61,52 @@ type UserInfo struct {
 
 type WeiboInfo struct {
 	CardType int    `json:"card_type"`
-	Itemid   int    `json:"itemid"`
+	Itemid   string `json:"itemid"`
 	Scheme   string `json:"scheme"`
 	Mblog    struct {
-		User           *UserInfo `json:"user"`
-		Idstr          string    `json:"idstr"`
-		Mid            string    `json:"mid"`
-		Text           string    `json:"text"`
-		Source         string    `json:"source"`
-		OriginalPic    string    `json:"original_pic"`
-		MblogVipType   int       `json:"mblog_vip_type"`
-		CreatedAt      string    `json:"created_at"`
-		RepostsCount   string    `json:"reposts_count"`
-		CommentsCount  string    `json:"comments_count"`
-		AttitudesCount string    `json:"attitudes_count"`
+		User           UserInfo   `json:"user"`
+		Idstr          string     `json:"idstr"`
+		Mid            string     `json:"mid"`
+		Text           string     `json:"text"`
+		Source         string     `json:"source"`
+		OriginalPic    string     `json:"original_pic"`
+		MblogVipType   int        `json:"mblog_vip_type"`
+		CreatedAt      string     `json:"created_at"`
+		RepostsCount   WeiboCount `json:"reposts_count"`
+		CommentsCount  WeiboCount `json:"comments_count"`
+		AttitudesCount WeiboCount `json:"attitudes_count"`
 		Pics           []struct {
 			Pid string `json:"pid"`
 			Url string `json:"url"`
 		} `json:"pics"`
+	} `json:"mblog"`
+}
+
+type WeiboCount struct {
+	Type   Type
+	IntVal int
+	StrVal string
+}
+
+// @implement: json unmarshal
+func (count *WeiboCount) UnmarshalJSON(value []byte) error {
+	if value[0] == '"' {
+		count.Type = String
+		return json.Unmarshal(value, &count.StrVal)
+	}
+	count.Type = Int64
+	return json.Unmarshal(value, &count.IntVal)
+}
+
+// 实现 json.Marshaller 接口
+func (count *WeiboCount) MarshalJSON() ([]byte, error) {
+	switch count.Type {
+	case Int64:
+		return json.Marshal(count.IntVal)
+	case String:
+		return json.Marshal(count.StrVal)
+	default:
+		return []byte{}, fmt.Errorf("impossible Weibo.Type")
 	}
 }
 
@@ -77,6 +117,7 @@ type Spider struct {
 	uid        string
 	limit      int
 	container  string
+	since      uint64
 	profile    *UserInfo
 	weibos     []*WeiboInfo
 	defaultOut OutInterface
@@ -88,7 +129,6 @@ func NewSpider() *Spider {
 	s := new(Spider)
 	s.client = new(http.Client)
 	s.req, _ = http.NewRequest("GET", WEIBO_URL, nil)
-	s.req.Header.Set("user-agent", browser.Random())
 	s.defaultOut = &ConsoleOut{}
 	s.userOut = nil
 	return s
@@ -131,7 +171,7 @@ func (s *Spider) Run() error {
 	}
 
 	if s._type&TYPE_WEIBO > 0 {
-		if err := s.fetchWeiboinfo(); err != nil {
+		if err := s.fetchWeiboInfo(); err != nil {
 			return err
 		}
 	}
@@ -142,8 +182,10 @@ func (s *Spider) Run() error {
 // @function: 获取用户信息
 func (s *Spider) fetchUserInfo() error {
 	q := s.req.URL.Query()
+	q.Set("is_all", "1")
 	q.Set("type", "uid")
 	q.Set("value", s.uid)
+
 	s.req.URL.RawQuery = q.Encode()
 
 	if err := s.doRequest(); err != nil {
@@ -154,11 +196,16 @@ func (s *Spider) fetchUserInfo() error {
 }
 
 // @function: 获取微博信息
-func (s *Spider) fetchWeiboinfo() error {
+func (s *Spider) fetchWeiboInfo() error {
 	q := s.req.URL.Query()
+	q.Set("is_all", "1")
 	q.Set("type", "uid")
 	q.Set("value", s.uid)
 	q.Set("containerid", s.container)
+
+	if s.since != 0 {
+		q.Set("since_id", strconv.FormatUint(s.since, 10))
+	}
 
 	s.req.URL.RawQuery = q.Encode()
 
@@ -166,11 +213,21 @@ func (s *Spider) fetchWeiboinfo() error {
 		return err
 	}
 
+	if err := s.outWeibo(); err != nil {
+		return err
+	}
+
+	if s.since != 0 {
+		return s.fetchWeiboInfo()
+	}
+
 	return nil
 }
 
 // @function: 执行请求获取微博响应数据
 func (s *Spider) doRequest() error {
+	s.req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0")
+
 	resp, err := s.client.Do(s.req)
 	if err != nil {
 		return err
@@ -179,16 +236,22 @@ func (s *Spider) doRequest() error {
 	defer resp.Body.Close()
 	b, _ := ioutil.ReadAll(resp.Body)
 
-	var data WeiboResp
+	data := new(WeiboResp)
 	if err := json.Unmarshal(b, &data); err != nil {
 		return err
 	}
 
-	u, _ := url.Parse(data.Data.Scheme)
-	m, _ := url.ParseQuery(u.RawQuery)
+	s.profile = data.Data.UserInfo
+	s.weibos = data.Data.Cards
+	s.since = data.Data.CardListInfo.SinceId
 
-	s.profile = &data.Data.UserInfo
-	s.container = m.Get("lfid")
+	for _, t := range data.Data.TabsInfo.Tabs {
+		if t.TabKey == "weibo" {
+			s.container = t.ContainerId
+		}
+	}
+
+	fmt.Println(s.since)
 
 	return nil
 }
@@ -211,7 +274,6 @@ func (s *Spider) outProfile() error {
 
 func (s *Spider) outWeibo() error {
 	for _, w := range s.weibos {
-
 		if s.defaultOut != nil {
 			if err := s.defaultOut.WriteWeiboInfo(w); err != nil {
 				return err

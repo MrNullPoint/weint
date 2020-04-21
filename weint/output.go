@@ -40,7 +40,6 @@ func (o *ConsoleOut) WriteUserInfo(info *UserInfo) error {
 }
 
 func (o *ConsoleOut) WriteWeiboInfo(info *WeiboInfo) error {
-	fmt.Println()
 	return nil
 }
 
