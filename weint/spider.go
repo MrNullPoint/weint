@@ -5,7 +5,6 @@ import (
 	"errors"
 	browser "github.com/EDDYCJY/fake-useragent"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 )
@@ -158,7 +157,7 @@ func (s *Spider) doRequest() error {
 
 	var data WeiboResp
 	if err := json.Unmarshal(b, &data); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	u, _ := url.Parse(data.Data.Scheme)
@@ -166,4 +165,6 @@ func (s *Spider) doRequest() error {
 
 	s.profile = &data.Data.UserInfo
 	s.container = m.Get("lfid")
+
+	return nil
 }
