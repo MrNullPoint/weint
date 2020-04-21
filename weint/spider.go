@@ -19,8 +19,12 @@ const WEIBO_URL = "https://m.weibo.cn/api/container/getIndex"
 type WeiboResp struct {
 	Ok   int `json:"ok"`
 	Data struct {
-		UserInfo UserInfo `json:"userInfo"`
-		Scheme   string   `json:"scheme"`
+		UserInfo     UserInfo     `json:"userInfo"`
+		Scheme       string       `json:"scheme"`
+		Cards        []*WeiboInfo `json:"cards"`
+		CardListInfo struct {
+			SinceId uint64 `json:"since_id"`
+		} `json:"cardlistInfo"`
 	} `json:"data"`
 }
 
@@ -44,6 +48,26 @@ type UserInfo struct {
 }
 
 type WeiboInfo struct {
+	CardType int    `json:"card_type"`
+	Itemid   int    `json:"itemid"`
+	Scheme   string `json:"scheme"`
+	Mblog    struct {
+		User           *UserInfo `json:"user"`
+		Idstr          string    `json:"idstr"`
+		Mid            string    `json:"mid"`
+		Text           string    `json:"text"`
+		Source         string    `json:"source"`
+		OriginalPic    string    `json:"original_pic"`
+		MblogVipType   int       `json:"mblog_vip_type"`
+		CreatedAt      string    `json:"created_at"`
+		RepostsCount   string    `json:"reposts_count"`
+		CommentsCount  string    `json:"comments_count"`
+		AttitudesCount string    `json:"attitudes_count"`
+		Pics           []struct {
+			Pid string `json:"pid"`
+			Url string `json:"url"`
+		} `json:"pics"`
+	}
 }
 
 type Spider struct {
@@ -118,34 +142,34 @@ func (s *Spider) Run() error {
 // @function: 获取用户信息
 func (s *Spider) fetchUserInfo() error {
 	q := s.req.URL.Query()
-	q.Add("type", "uid")
-	q.Add("value", s.uid)
+	q.Set("type", "uid")
+	q.Set("value", s.uid)
 	s.req.URL.RawQuery = q.Encode()
 
 	if err := s.doRequest(); err != nil {
 		return err
 	}
 
-	if s.defaultOut != nil {
-		if err := s.defaultOut.WriteUserInfo(s.profile); err != nil {
-			return err
-		}
-	}
-
-	if s.userOut != nil {
-		if err := s.userOut.WriteUserInfo(s.profile); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return s.outProfile()
 }
 
 // @function: 获取微博信息
 func (s *Spider) fetchWeiboinfo() error {
+	q := s.req.URL.Query()
+	q.Set("type", "uid")
+	q.Set("value", s.uid)
+	q.Set("containerid", s.container)
+
+	s.req.URL.RawQuery = q.Encode()
+
+	if err := s.doRequest(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
+// @function: 执行请求获取微博响应数据
 func (s *Spider) doRequest() error {
 	resp, err := s.client.Do(s.req)
 	if err != nil {
@@ -165,6 +189,41 @@ func (s *Spider) doRequest() error {
 
 	s.profile = &data.Data.UserInfo
 	s.container = m.Get("lfid")
+
+	return nil
+}
+
+func (s *Spider) outProfile() error {
+	if s.defaultOut != nil {
+		if err := s.defaultOut.WriteUserInfo(s.profile); err != nil {
+			return err
+		}
+	}
+
+	if s.userOut != nil {
+		if err := s.userOut.WriteUserInfo(s.profile); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *Spider) outWeibo() error {
+	for _, w := range s.weibos {
+
+		if s.defaultOut != nil {
+			if err := s.defaultOut.WriteWeiboInfo(w); err != nil {
+				return err
+			}
+		}
+
+		if s.userOut != nil {
+			if err := s.userOut.WriteWeiboInfo(w); err != nil {
+				return err
+			}
+		}
+	}
 
 	return nil
 }
