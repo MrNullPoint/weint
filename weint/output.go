@@ -1,8 +1,7 @@
 package weint
 
 import (
-	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 type OutInterface interface {
@@ -34,8 +33,14 @@ type FileJsonOut struct {
 }
 
 func (o *ConsoleOut) WriteUserInfo(info *UserInfo) error {
-	b, _ := json.Marshal(info)
-	fmt.Println(string(b))
+	text := ""
+	text += "id: " + strconv.FormatInt(info.Id, 10) + " | "
+	text += "用户名: " + info.ScreenName + " | "
+	text += "性别: " + info.Gender + " | "
+	text += "简介: " + info.Description + " | "
+	text += "关注者数量: " + strconv.FormatInt(info.FollowCount, 10) + " | "
+	text += "粉丝数量: " + strconv.FormatInt(info.FollowersCount, 10) + " | "
+	text += "微博数量: " + strconv.FormatInt(info.StatuesCount, 10) + " | "
 	return nil
 }
 
