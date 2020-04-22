@@ -267,8 +267,6 @@ func (s *Spider) doRequest() error {
 		}
 	}
 
-	fmt.Println(s.since)
-
 	return nil
 }
 
