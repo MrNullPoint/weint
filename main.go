@@ -22,17 +22,17 @@ func main() {
 			&cli.BoolFlag{
 				Name:    "info",
 				Aliases: []string{"i"},
-				Usage:   "set config, i or info, w or weibo, q or quick",
+				Usage:   "set to get user's profile",
 			},
 			&cli.BoolFlag{
 				Name:    "weibo",
 				Aliases: []string{"w"},
-				Usage:   "set config, i or info, w or weibo, q or quick",
+				Usage:   "set to get user's weibo list",
 			},
 			&cli.BoolFlag{
 				Name:    "quick",
 				Aliases: []string{"q"},
-				Usage:   "set config, i or info, w or weibo, q or quick",
+				Usage:   "set to use quick mode, best practice is to use a proxy pool when set this flag",
 			},
 			&cli.StringFlag{
 				Name:    "proxy",
