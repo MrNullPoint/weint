@@ -13,7 +13,6 @@ go get
 ### 依赖
 
 - [cli](https://github.com/urfave/cli)
-- [fake-useragent](https://github.com/eddycjy/fake-useragent)
 
 ## 使用方法
 
@@ -36,8 +35,9 @@ COMMANDS:
 
 GLOBAL OPTIONS:
    --user value, -u value     set weibo user id, must set
-   --info, -i                 set this flag means you can get weibo user profile (default: true)
-   --weibo, -w                set this flag means you can get user weibo list (default: false)
+   --info, -i                 set to get user's profile (default: false)
+   --weibo, -w                set to get user's weibo list (default: false)
+   --quick, -q                set to use quick mode, best practice is to use a proxy pool when set this flag (default: false)
    --proxy value, -p value    set proxy
    --out value, -o value      set output type, csv/json/db/elastic
    --file value, -f value     set output filename
