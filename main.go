@@ -20,18 +20,19 @@ func main() {
 				Required: true,
 			},
 			&cli.BoolFlag{
-				Name:        "info",
-				Aliases:     []string{"i"},
-				Value:       true,
-				DefaultText: "true",
-				Usage:       "set this flag means you can get weibo user profile",
+				Name:    "info",
+				Aliases: []string{"i"},
+				Usage:   "set config, i or info, w or weibo, q or quick",
 			},
 			&cli.BoolFlag{
-				Name:        "weibo",
-				Aliases:     []string{"w"},
-				Value:       false,
-				DefaultText: "false",
-				Usage:       "set this flag means you can get user weibo list",
+				Name:    "weibo",
+				Aliases: []string{"w"},
+				Usage:   "set config, i or info, w or weibo, q or quick",
+			},
+			&cli.BoolFlag{
+				Name:    "quick",
+				Aliases: []string{"q"},
+				Usage:   "set config, i or info, w or weibo, q or quick",
 			},
 			&cli.StringFlag{
 				Name:    "proxy",
@@ -58,6 +59,8 @@ func main() {
 		},
 	}
 
+	app.UseShortOptionHandling = true
+
 	app.Action = func(c *cli.Context) error {
 		spider := weint.NewSpider()
 		spider.Uid(c.String("user"))
@@ -68,6 +71,10 @@ func main() {
 
 		if c.Bool("weibo") {
 			spider.Type(weint.TYPE_WEIBO)
+		}
+
+		if c.Bool("quick") {
+			spider.Quick(true)
 		}
 
 		var filename string

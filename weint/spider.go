@@ -5,8 +5,10 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 const (
@@ -114,6 +116,7 @@ type Spider struct {
 	req        *http.Request
 	client     *http.Client
 	_type      int
+	quick      bool
 	uid        string
 	limit      int
 	container  string
@@ -149,6 +152,12 @@ func (s *Spider) Limit(limit int) *Spider {
 // @function: 设置爬虫类型
 func (s *Spider) Type(_type int) *Spider {
 	s._type += _type
+	return s
+}
+
+// @function: 设置爬虫速度
+func (s *Spider) Quick(quick bool) *Spider {
+	s.quick = quick
 	return s
 }
 
@@ -226,7 +235,14 @@ func (s *Spider) fetchWeiboInfo() error {
 
 // @function: 执行请求获取微博响应数据
 func (s *Spider) doRequest() error {
-	s.req.Header.Set("User-Agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0")
+	rs := rand.NewSource(time.Now().Unix())
+	ra := rand.New(rs)
+
+	if !s.quick {
+		time.Sleep(time.Duration(ra.Intn(5)) * time.Second)
+	}
+
+	s.req.Header.Set("User-Agent", uaList[ra.Intn(len(uaList))])
 
 	resp, err := s.client.Do(s.req)
 	if err != nil {
