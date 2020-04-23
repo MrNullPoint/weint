@@ -1,4 +1,4 @@
-package main
+package weint
 
 import (
 	"encoding/json"
