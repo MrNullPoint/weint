@@ -1,4 +1,4 @@
-package weint
+package main
 
 import (
 	"strconv"
