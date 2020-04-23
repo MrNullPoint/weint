@@ -1,9 +1,9 @@
 package main
 
 import (
-	"Weint/weint"
 	"errors"
-	"github.com/urfave/cli"
+	"github.com/MrNullPoint/weint/weint"
+	"github.com/urfave/cli/v2"
 	"log"
 	"os"
 )
