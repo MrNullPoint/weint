@@ -10,10 +10,6 @@ golang 版本非官方新浪微博采集 API，不需要微博 api 也不需要�
 go get
 ```
 
-### 依赖
-
-- [cli](https://github.com/urfave/cli)
-
 ## 使用方法
 
 ### 命令行版本
