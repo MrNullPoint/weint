@@ -1,4 +1,4 @@
-module weint
+module github.com/MrNullPoint/weint
 
 go 1.14
 

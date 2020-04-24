@@ -1,8 +1,8 @@
 package test
 
 import (
+	"github.com/MrNullPoint/weint"
 	"testing"
-	"weint"
 )
 
 func TestSpiderOut(t *testing.T) {
