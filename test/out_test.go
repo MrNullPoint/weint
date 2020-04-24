@@ -43,3 +43,14 @@ func TestJsonOut(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestElasticOut(t *testing.T) {
+	spider := weint.NewSpider()
+	spider.Uid("5644764907")
+	spider.Type(weint.TYPE_INFO)
+	spider.Type(weint.TYPE_WEIBO)
+	spider.Out(&weint.ElasticOut{Host: "127.0.0.1:9200"})
+	if err := spider.Run(); err != nil {
+		t.Error(err)
+	}
+}
