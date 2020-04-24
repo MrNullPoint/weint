@@ -6,6 +6,7 @@ import (
 	"github.com/urfave/cli/v2"
 	"log"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -81,15 +82,15 @@ func main() {
 		if c.String("file") == "" {
 			filename = "output." + c.String("out")
 		} else {
-			filename = c.String("file")
+			filename = strings.Split(c.String("file"), ".")[0]
 		}
 
 		switch c.String("out") {
 		case "":
 		case "csv":
-			spider.Out(&weint.FileCSVOut{FileOut: weint.FileOut{Filename: filename}})
+			spider.Out(&weint.FileCSVOut{FileOut: weint.FileOut{WeiboFileName: filename + "-weibo.csv", UserFileName: filename + "-user.csv"}})
 		case "json":
-			spider.Out(&weint.FileJsonOut{FileOut: weint.FileOut{Filename: filename}})
+			spider.Out(&weint.FileJsonOut{FileOut: weint.FileOut{WeiboFileName: filename + "-weibo.json", UserFileName: filename + "-user.json"}})
 		case "db":
 			spider.Out(&weint.SQLiteOut{DBName: filename})
 		case "elastic":
