@@ -45,7 +45,7 @@ func (o *ConsoleOut) WriteUserInfo(info *UserInfo) error {
 	text += "简介: " + info.Description + " | "
 	text += "关注者数量: " + strconv.FormatInt(info.FollowCount, 10) + " | "
 	text += "粉丝数量: " + strconv.FormatInt(info.FollowersCount, 10) + " | "
-	text += "微博数量: " + strconv.FormatInt(info.StatuesCount, 10) + " | "
+	text += "微博数量: " + strconv.FormatInt(info.StatusesCount, 10) + " | "
 	return nil
 }
 
@@ -70,7 +70,7 @@ func (o *ElasticOut) WriteWeiboInfo(info *WeiboInfo) error {
 }
 
 func (o *FileCSVOut) WriteUserInfo(info *UserInfo) error {
-	f, _ := os.OpenFile(o.WeiboFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModePerm)
+	f, _ := os.OpenFile(o.UserFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModePerm)
 	defer f.Close()
 
 	f.WriteString("\xEF\xBB\xBF")
@@ -78,13 +78,27 @@ func (o *FileCSVOut) WriteUserInfo(info *UserInfo) error {
 	w := csv.NewWriter(f)
 	defer w.Flush()
 
-	return w.Write([]string{strconv.FormatInt(info.Id, 10), info.ScreenName, info.Description, info.Gender,
+	return w.Write([]string{strconv.FormatInt(info.Id, 10), info.ScreenName, info.Description, info.ProfileUrl, info.Gender,
 		strconv.FormatInt(info.FollowCount, 10), strconv.FormatInt(info.FollowersCount, 10), strconv.FormatInt(info.StatusesCount, 10),
 		strconv.FormatBool(info.Verified), info.VerifiedReason})
 }
 
 func (o *FileCSVOut) WriteWeiboInfo(info *WeiboInfo) error {
-	panic("implement me")
+	if info == nil || info.CardType != 9 {
+		return nil
+	}
+
+	f, _ := os.OpenFile(o.WeiboFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModePerm)
+	defer f.Close()
+
+	w := csv.NewWriter(f)
+	defer w.Flush()
+
+	pb, _ := json.Marshal(info.Mblog.Pics)
+
+	return w.Write([]string{info.Mblog.Idstr, info.Mblog.CreatedAt, info.Mblog.Source, info.Mblog.Text, string(pb),
+		info.Mblog.CommentsCount.String(), info.Mblog.AttitudesCount.String(), info.Mblog.RepostsCount.String(),
+		strconv.FormatInt(info.Mblog.User.Id, 10), info.Mblog.User.ScreenName})
 }
 
 func (o *FileJsonOut) WriteUserInfo(info *UserInfo) error {

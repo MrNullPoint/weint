@@ -86,7 +86,7 @@ type WeiboInfo struct {
 
 type WeiboCount struct {
 	Type   Type
-	IntVal int
+	IntVal int64
 	StrVal string
 }
 
@@ -109,6 +109,17 @@ func (count *WeiboCount) MarshalJSON() ([]byte, error) {
 		return json.Marshal(count.StrVal)
 	default:
 		return []byte{}, fmt.Errorf("impossible Weibo.Type")
+	}
+}
+
+func (count *WeiboCount) String() string {
+	switch count.Type {
+	case Int64:
+		return strconv.FormatInt(count.IntVal, 10)
+	case String:
+		return count.StrVal
+	default:
+		return ""
 	}
 }
 
