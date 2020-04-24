@@ -105,7 +105,7 @@ if err := spider.Run(); err != nil {
 
 - 获取指定用户微博
 
-```json
+```go
 spider := weint.NewSpider().Uid("微博账号id").Type(weint.TYPE_WEIBO)
 if err := spider.Run(); err != nil {
     log.Panic(err)
