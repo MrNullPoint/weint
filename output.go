@@ -1,6 +1,9 @@
 package weint
 
 import (
+	"encoding/json"
+	"io/ioutil"
+	"os"
 	"strconv"
 )
 
@@ -21,7 +24,8 @@ type ElasticOut struct {
 }
 
 type FileOut struct {
-	Filename string
+	UserFileName  string
+	WeiboFileName string
 }
 
 type FileCSVOut struct {
@@ -65,6 +69,7 @@ func (o *ElasticOut) WriteWeiboInfo(info *WeiboInfo) error {
 }
 
 func (o *FileCSVOut) WriteUserInfo(info *UserInfo) error {
+
 	panic("implement me")
 }
 
@@ -73,9 +78,21 @@ func (o *FileCSVOut) WriteWeiboInfo(info *WeiboInfo) error {
 }
 
 func (o *FileJsonOut) WriteUserInfo(info *UserInfo) error {
-	panic("implement me")
+	if b, err := json.Marshal(info); err != nil {
+		return err
+	} else {
+		return ioutil.WriteFile(o.UserFileName, b, os.ModePerm)
+	}
 }
 
 func (o *FileJsonOut) WriteWeiboInfo(info *WeiboInfo) error {
-	panic("implement me")
+	fd, _ := os.OpenFile(o.WeiboFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModePerm)
+	defer fd.Close()
+
+	if b, err := json.Marshal(info); err != nil {
+		return err
+	} else {
+		_, err := fd.Write(b)
+		return err
+	}
 }
