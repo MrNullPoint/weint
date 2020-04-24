@@ -93,11 +93,8 @@ func (o *ElasticOut) SetUpClient() error {
 	var err error
 
 	o.client, err = elastic.NewSimpleClient(elastic.SetURL(url))
-	if err != nil {
-		return err
-	}
 
-	return nil
+	return err
 }
 
 func (o *ElasticOut) WriteUserInfo(info *UserInfo) error {
