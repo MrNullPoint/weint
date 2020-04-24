@@ -3,7 +3,7 @@ package main
 import (
 	"errors"
 	"github.com/MrNullPoint/weint"
-	"github.com/urfave/cli/v2"
+	"github.com/urfave/cli"
 	"log"
 	"os"
 	"strings"
