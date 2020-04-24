@@ -1,6 +1,7 @@
 package weint
 
 import (
+	"encoding/csv"
 	"encoding/json"
 	"io/ioutil"
 	"os"
@@ -69,8 +70,17 @@ func (o *ElasticOut) WriteWeiboInfo(info *WeiboInfo) error {
 }
 
 func (o *FileCSVOut) WriteUserInfo(info *UserInfo) error {
+	f, _ := os.OpenFile(o.WeiboFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModePerm)
+	defer f.Close()
 
-	panic("implement me")
+	f.WriteString("\xEF\xBB\xBF")
+
+	w := csv.NewWriter(f)
+	defer w.Flush()
+
+	return w.Write([]string{strconv.FormatInt(info.Id, 10), info.ScreenName, info.Description, info.Gender,
+		strconv.FormatInt(info.FollowCount, 10), strconv.FormatInt(info.FollowersCount, 10), strconv.FormatInt(info.StatuesCount, 10),
+		strconv.FormatBool(info.Verified), info.VerifiedReason})
 }
 
 func (o *FileCSVOut) WriteWeiboInfo(info *WeiboInfo) error {
