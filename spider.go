@@ -142,6 +142,37 @@ func (w *WeiboInfo) Build() *WeiboInfo {
 	return w
 }
 
+func (w *WeiboInfo) Slice() []string {
+	pb, _ := json.Marshal(w.Pics)
+	return []string{
+		w.Idstr,
+		w.CreatedAt,
+		w.Source,
+		w.Text,
+		string(pb),
+		w.CommentsCount.String(),
+		w.AttitudesCount.String(),
+		w.RepostsCount.String(),
+		strconv.FormatInt(w.User.Id, 10),
+		w.User.ScreenName,
+	}
+}
+
+func (u *UserInfo) Slice() []string {
+	return []string{
+		strconv.FormatInt(u.Id, 10),
+		u.ScreenName,
+		u.Description,
+		u.ProfileUrl,
+		u.Gender,
+		strconv.FormatInt(u.FollowCount, 10),
+		strconv.FormatInt(u.FollowersCount, 10),
+		strconv.FormatInt(u.StatusesCount, 10),
+		strconv.FormatBool(u.Verified),
+		u.VerifiedReason,
+	}
+}
+
 type Spider struct {
 	req        *http.Request
 	client     *http.Client

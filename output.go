@@ -4,12 +4,13 @@ import (
 	"context"
 	"encoding/csv"
 	"encoding/json"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/olivere/elastic"
 	"io/ioutil"
 	"os"
-	"strconv"
+	"strings"
 )
 
 const ES_USER_INFO = "user_infos"
@@ -46,18 +47,12 @@ type FileJsonOut struct {
 }
 
 func (o *ConsoleOut) WriteUserInfo(info *UserInfo) error {
-	text := ""
-	text += "id: " + strconv.FormatInt(info.Id, 10) + " | "
-	text += "用户名: " + info.ScreenName + " | "
-	text += "性别: " + info.Gender + " | "
-	text += "简介: " + info.Description + " | "
-	text += "关注者数量: " + strconv.FormatInt(info.FollowCount, 10) + " | "
-	text += "粉丝数量: " + strconv.FormatInt(info.FollowersCount, 10) + " | "
-	text += "微博数量: " + strconv.FormatInt(info.StatusesCount, 10) + " | "
+	fmt.Println(strings.Join(info.Slice(), ","))
 	return nil
 }
 
 func (o *ConsoleOut) WriteWeiboInfo(info *WeiboInfo) error {
+	fmt.Println(strings.Join(info.Slice(), ","))
 	return nil
 }
 
@@ -122,9 +117,7 @@ func (o *FileCSVOut) WriteUserInfo(info *UserInfo) error {
 	w := csv.NewWriter(f)
 	defer w.Flush()
 
-	return w.Write([]string{strconv.FormatInt(info.Id, 10), info.ScreenName, info.Description, info.ProfileUrl, info.Gender,
-		strconv.FormatInt(info.FollowCount, 10), strconv.FormatInt(info.FollowersCount, 10), strconv.FormatInt(info.StatusesCount, 10),
-		strconv.FormatBool(info.Verified), info.VerifiedReason})
+	return w.Write(info.Slice())
 }
 
 func (o *FileCSVOut) WriteWeiboInfo(info *WeiboInfo) error {
@@ -138,11 +131,7 @@ func (o *FileCSVOut) WriteWeiboInfo(info *WeiboInfo) error {
 	w := csv.NewWriter(f)
 	defer w.Flush()
 
-	pb, _ := json.Marshal(info.Pics)
-
-	return w.Write([]string{info.Idstr, info.CreatedAt, info.Source, info.Text, string(pb),
-		info.CommentsCount.String(), info.AttitudesCount.String(), info.RepostsCount.String(),
-		strconv.FormatInt(info.User.Id, 10), info.User.ScreenName})
+	return w.Write(info.Slice())
 }
 
 func (o *FileJsonOut) WriteUserInfo(info *UserInfo) error {
