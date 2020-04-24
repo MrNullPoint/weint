@@ -146,7 +146,7 @@ if err := spider.Run(); err != nil {
 
 - 结果保存到 SQLite
 
-```json
+```go
 spider := weint.NewSpider()
 spider.Uid("微博账号id")
 spider.Type(weint.TYPE_INFO)
