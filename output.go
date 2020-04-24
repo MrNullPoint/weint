@@ -3,6 +3,8 @@ package weint
 import (
 	"encoding/csv"
 	"encoding/json"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"io/ioutil"
 	"os"
 	"strconv"
@@ -54,11 +56,25 @@ func (o *ConsoleOut) WriteWeiboInfo(info *WeiboInfo) error {
 }
 
 func (o *SQLiteOut) WriteUserInfo(info *UserInfo) error {
-	panic("implement me")
+	db, err := gorm.Open("sqlite3", o.DBName)
+	if err != nil {
+		return err
+	}
+
+	db.AutoMigrate(&UserInfo{})
+
+	return db.Create(info).Error
 }
 
 func (o *SQLiteOut) WriteWeiboInfo(info *WeiboInfo) error {
-	panic("implement me")
+	db, err := gorm.Open("sqlite3", o.DBName)
+	if err != nil {
+		return err
+	}
+
+	db.AutoMigrate(&WeiboInfo{})
+
+	return db.Create(info.Build()).Error
 }
 
 func (o *ElasticOut) WriteUserInfo(info *UserInfo) error {
@@ -84,7 +100,7 @@ func (o *FileCSVOut) WriteUserInfo(info *UserInfo) error {
 }
 
 func (o *FileCSVOut) WriteWeiboInfo(info *WeiboInfo) error {
-	if info == nil || info.CardType != 9 {
+	if info == nil {
 		return nil
 	}
 
@@ -94,11 +110,11 @@ func (o *FileCSVOut) WriteWeiboInfo(info *WeiboInfo) error {
 	w := csv.NewWriter(f)
 	defer w.Flush()
 
-	pb, _ := json.Marshal(info.Mblog.Pics)
+	pb, _ := json.Marshal(info.Pics)
 
-	return w.Write([]string{info.Mblog.Idstr, info.Mblog.CreatedAt, info.Mblog.Source, info.Mblog.Text, string(pb),
-		info.Mblog.CommentsCount.String(), info.Mblog.AttitudesCount.String(), info.Mblog.RepostsCount.String(),
-		strconv.FormatInt(info.Mblog.User.Id, 10), info.Mblog.User.ScreenName})
+	return w.Write([]string{info.Idstr, info.CreatedAt, info.Source, info.Text, string(pb),
+		info.CommentsCount.String(), info.AttitudesCount.String(), info.RepostsCount.String(),
+		strconv.FormatInt(info.User.Id, 10), info.User.ScreenName})
 }
 
 func (o *FileJsonOut) WriteUserInfo(info *UserInfo) error {

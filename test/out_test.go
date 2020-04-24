@@ -18,3 +18,14 @@ func TestCSVOut(t *testing.T) {
 		t.Error(err)
 	}
 }
+
+func TestSQLiteOut(t *testing.T) {
+	spider := weint.NewSpider()
+	spider.Uid("5644764907")
+	spider.Type(weint.TYPE_INFO)
+	spider.Type(weint.TYPE_WEIBO)
+	spider.Out(&weint.SQLiteOut{DBName: "5644764907.db"})
+	if err := spider.Run(); err != nil {
+		t.Error(err)
+	}
+}

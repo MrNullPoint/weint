@@ -28,8 +28,8 @@ const WEIBO_URL = "https://m.weibo.cn/api/container/getIndex"
 type WeiboResp struct {
 	Ok   int `json:"ok"`
 	Data struct {
-		UserInfo *UserInfo    `json:"userInfo"`
-		Cards    []*WeiboInfo `json:"cards"`
+		UserInfo *UserInfo   `json:"userInfo"`
+		Cards    []*CardInfo `json:"cards"`
 		TabsInfo struct {
 			Tabs []struct {
 				TabKey      string `json:"tabKey"`
@@ -61,27 +61,35 @@ type UserInfo struct {
 	Urank           int64  `json:"urank"`
 }
 
+type CardInfo struct {
+	CardType int        `json:"card_type"`
+	Itemid   string     `json:"itemid"`
+	Scheme   string     `json:"scheme"`
+	Mblog    *WeiboInfo `json:"mblog"`
+}
+
 type WeiboInfo struct {
-	CardType int    `json:"card_type"`
-	Itemid   string `json:"itemid"`
-	Scheme   string `json:"scheme"`
-	Mblog    struct {
-		User           UserInfo   `json:"user"`
-		Idstr          string     `json:"idstr"`
-		Mid            string     `json:"mid"`
-		Text           string     `json:"text"`
-		Source         string     `json:"source"`
-		OriginalPic    string     `json:"original_pic"`
-		MblogVipType   int        `json:"mblog_vip_type"`
-		CreatedAt      string     `json:"created_at"`
-		RepostsCount   WeiboCount `json:"reposts_count"`
-		CommentsCount  WeiboCount `json:"comments_count"`
-		AttitudesCount WeiboCount `json:"attitudes_count"`
-		Pics           []struct {
-			Pid string `json:"pid"`
-			Url string `json:"url"`
-		} `json:"pics"`
-	} `json:"mblog"`
+	User              *UserInfo  `json:"user" gorm:"-"`
+	UserId            string     `json:"-"`
+	ScreenName        string     `json:"-"`
+	Idstr             string     `json:"idstr"`
+	Mid               string     `json:"mid"`
+	Text              string     `json:"text"`
+	Source            string     `json:"source"`
+	OriginalPic       string     `json:"original_pic"`
+	MblogVipType      int        `json:"mblog_vip_type"`
+	CreatedAt         string     `json:"created_at"`
+	RepostsCount      WeiboCount `json:"reposts_count" gorm:"-"`
+	RepostsCountStr   string     `json:"-"`
+	CommentsCount     WeiboCount `json:"comments_count" gorm:"-"`
+	CommentsCountStr  string     `json:"-"`
+	AttitudesCount    WeiboCount `json:"attitudes_count" gorm:"-"`
+	AttitudesCountStr string     `json:"-"`
+	Pics              []struct {
+		Pid string `json:"pid"`
+		Url string `json:"url"`
+	} `json:"pics" gorm:"-"`
+	PicsList string `json:"pics_list"`
 }
 
 type WeiboCount struct {
@@ -123,6 +131,17 @@ func (count *WeiboCount) String() string {
 	}
 }
 
+func (w *WeiboInfo) Build() *WeiboInfo {
+	b, _ := json.Marshal(w.Pics)
+	w.UserId = strconv.FormatInt(w.User.Id, 10)
+	w.ScreenName = w.User.ScreenName
+	w.CommentsCountStr = w.CommentsCount.String()
+	w.RepostsCountStr = w.RepostsCount.String()
+	w.AttitudesCountStr = w.AttitudesCount.String()
+	w.PicsList = string(b)
+	return w
+}
+
 type Spider struct {
 	req        *http.Request
 	client     *http.Client
@@ -133,7 +152,7 @@ type Spider struct {
 	container  string
 	since      uint64
 	profile    *UserInfo
-	weibos     []*WeiboInfo
+	cards      []*CardInfo
 	defaultOut OutInterface
 	userOut    OutInterface
 }
@@ -273,7 +292,7 @@ func (s *Spider) doRequest() error {
 	}
 
 	s.profile = data.Data.UserInfo
-	s.weibos = data.Data.Cards
+	s.cards = data.Data.Cards
 	s.since = data.Data.CardListInfo.SinceId
 
 	for _, t := range data.Data.TabsInfo.Tabs {
@@ -302,15 +321,19 @@ func (s *Spider) outProfile() error {
 }
 
 func (s *Spider) outWeibo() error {
-	for _, w := range s.weibos {
+	for _, c := range s.cards {
+		if c.CardType != 9 {
+			continue
+		}
+
 		if s.defaultOut != nil {
-			if err := s.defaultOut.WriteWeiboInfo(w); err != nil {
+			if err := s.defaultOut.WriteWeiboInfo(c.Mblog); err != nil {
 				return err
 			}
 		}
 
 		if s.userOut != nil {
-			if err := s.userOut.WriteWeiboInfo(w); err != nil {
+			if err := s.userOut.WriteWeiboInfo(c.Mblog); err != nil {
 				return err
 			}
 		}
