@@ -7,7 +7,7 @@ golang 版本非官方新浪微博采集 API，不需要微博 api 也不需要�
 命令行版本直接从 release 处下载，golang 方式通过下载依赖
 
 ```shell
-go get
+go get github.com/MrNullPoint/weint
 ```
 
 ## 使用方法
@@ -17,29 +17,6 @@ go get
 从 release 中下载对应操作系统的二进制文件，指定参数运行
 
 ```shell
-NAME:
-   A simple tool to get somebody's weibo data - A new cli application
-
-USAGE:
-   main [global options] command [command options] [arguments...]
-
-VERSION:
-   0.0.1
-
-COMMANDS:
-   help, h  Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   --user value, -u value     set weibo user id, must set
-   --info, -i                 set to get user's profile (default: false)
-   --weibo, -w                set to get user's weibo list (default: false)
-   --quick, -q                set to use quick mode, best practice is to use a proxy pool when set this flag (default: false)
-   --proxy value, -p value    set proxy
-   --out value, -o value      set output type, csv/json/db/elastic
-   --file value, -f value     set output filename
-   --elastic value, -e value  set elastic search address (default: 127.0.0.1:9200)
-   --help, -h                 show help (default: false)
-   --version, -v              print the version (default: false)
 
 ```
 
@@ -61,18 +38,6 @@ $ weint -u 用户id -i
 
 ```shell
 $ weint -u 用户id -w
-```
-
-- 指定代理
-
-```shell
-$ weint -u 用户id -p 127.0.0.1:1080
-```
-
-- 限制返回微博数量
-
-```shell
-$ weint -u 用户id -w -l 100
 ```
 
 - 结果保存为 CSV
