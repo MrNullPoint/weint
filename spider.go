@@ -47,7 +47,7 @@ type UserInfo struct {
 	ScreenName      string `json:"screen_name"`
 	ProfileImageUrl string `json:"profile_image_url"`
 	ProfileUrl      string `json:"profile_url"`
-	StatuesCount    int64  `json:"statues_count"`
+	StatusesCount   int64  `json:"statuses_count"`
 	Verified        bool   `json:"verified"`
 	VerifiedType    int    `json:"verified_type"`
 	VerifiedTypeExt int    `json:"verified_type_ext"`

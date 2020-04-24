@@ -79,7 +79,7 @@ func (o *FileCSVOut) WriteUserInfo(info *UserInfo) error {
 	defer w.Flush()
 
 	return w.Write([]string{strconv.FormatInt(info.Id, 10), info.ScreenName, info.Description, info.Gender,
-		strconv.FormatInt(info.FollowCount, 10), strconv.FormatInt(info.FollowersCount, 10), strconv.FormatInt(info.StatuesCount, 10),
+		strconv.FormatInt(info.FollowCount, 10), strconv.FormatInt(info.FollowersCount, 10), strconv.FormatInt(info.StatusesCount, 10),
 		strconv.FormatBool(info.Verified), info.VerifiedReason})
 }
 
