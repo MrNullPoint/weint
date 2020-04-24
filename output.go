@@ -1,14 +1,19 @@
 package weint
 
 import (
+	"context"
 	"encoding/csv"
 	"encoding/json"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
+	"github.com/olivere/elastic"
 	"io/ioutil"
 	"os"
 	"strconv"
 )
+
+const ES_USER_INFO = "user_infos"
+const ES_WEIBO_INFO = "weibo_infos"
 
 type OutInterface interface {
 	WriteUserInfo(info *UserInfo) error
@@ -23,7 +28,8 @@ type SQLiteOut struct {
 }
 
 type ElasticOut struct {
-	Host string
+	Host   string
+	client *elastic.Client
 }
 
 type FileOut struct {
@@ -77,12 +83,37 @@ func (o *SQLiteOut) WriteWeiboInfo(info *WeiboInfo) error {
 	return db.Create(info.Build()).Error
 }
 
+func (o *ElasticOut) SetUpClient() error {
+	url := elastic.DefaultURL
+
+	if o.Host != "" {
+		url = "http://" + o.Host
+	}
+
+	var err error
+
+	o.client, err = elastic.NewSimpleClient(elastic.SetURL(url))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (o *ElasticOut) WriteUserInfo(info *UserInfo) error {
-	panic("implement me")
+	if err := o.SetUpClient(); err != nil {
+		return err
+	}
+	_, err := o.client.Index().Index(ES_USER_INFO).BodyJson(info).Do(context.Background())
+	return err
 }
 
 func (o *ElasticOut) WriteWeiboInfo(info *WeiboInfo) error {
-	panic("implement me")
+	if err := o.SetUpClient(); err != nil {
+		return err
+	}
+	_, err := o.client.Index().Index(ES_WEIBO_INFO).BodyJson(info).Do(context.Background())
+	return err
 }
 
 func (o *FileCSVOut) WriteUserInfo(info *UserInfo) error {
