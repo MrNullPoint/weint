@@ -89,10 +89,15 @@ func (o *FileJsonOut) WriteWeiboInfo(info *WeiboInfo) error {
 	fd, _ := os.OpenFile(o.WeiboFileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, os.ModePerm)
 	defer fd.Close()
 
-	if b, err := json.Marshal(info); err != nil {
-		return err
-	} else {
-		_, err := fd.Write(b)
-		return err
+	if info != nil {
+		if b, err := json.Marshal(info); err != nil {
+			return err
+		} else {
+			_, err := fd.Write(b)
+			fd.WriteString("\n")
+			return err
+		}
 	}
+
+	return nil
 }

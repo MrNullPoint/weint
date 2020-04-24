@@ -239,7 +239,7 @@ func (s *Spider) doRequest() error {
 	ra := rand.New(rs)
 
 	if !s.quick {
-		time.Sleep(time.Duration(ra.Intn(5)) * time.Second)
+		time.Sleep(time.Duration(ra.Intn(5)+1) * time.Second)
 	}
 
 	s.req.Header.Set("User-Agent", uaList[ra.Intn(len(uaList))])
@@ -252,7 +252,11 @@ func (s *Spider) doRequest() error {
 	defer resp.Body.Close()
 	b, _ := ioutil.ReadAll(resp.Body)
 
-	data := new(WeiboResp)
+	if resp.StatusCode != http.StatusOK || string(b) == "" {
+		return errors.New("weibo has no resp due to some reason such as request rate limit")
+	}
+
+	var data WeiboResp
 	if err := json.Unmarshal(b, &data); err != nil {
 		return err
 	}
