@@ -92,7 +92,7 @@ func main() {
 		case "json":
 			spider.Out(&weint.FileJsonOut{FileOut: weint.FileOut{WeiboFileName: filename + "-weibo.json", UserFileName: filename + "-user.json"}})
 		case "db":
-			spider.Out(&weint.SQLiteOut{DBName: filename})
+			spider.Out(&weint.SQLiteOut{DBName: filename + ".db"})
 		case "elastic":
 			spider.Out(&weint.ElasticOut{Host: c.String("elastic")})
 		default:
