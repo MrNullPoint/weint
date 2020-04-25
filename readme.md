@@ -16,7 +16,7 @@ go get github.com/MrNullPoint/weint
 
 从 release 中下载对应操作系统的二进制文件，指定参数运行，下面以 linux 二进制可执行文件为例：
 
-```shell
+```shell script
 NAME:
    A simple tool to get somebody's weibo data - A new cli application
 
