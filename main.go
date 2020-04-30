@@ -5,6 +5,8 @@ import (
 	"github.com/MrNullPoint/weint"
 	"github.com/urfave/cli"
 	"log"
+	"net/http"
+	"net/url"
 	"os"
 	"strings"
 )
@@ -65,6 +67,16 @@ func main() {
 	app.Action = func(c *cli.Context) error {
 		spider := weint.NewSpider()
 		spider.Uid(c.String("user"))
+
+		if c.String("proxy") != "" {
+			urli := url.URL{}
+			proxy, _ := urli.Parse(c.String("proxy"))
+			spider.Client(&http.Client{
+				Transport: &http.Transport{
+					Proxy: http.ProxyURL(proxy),
+				},
+			})
+		}
 
 		if c.Bool("info") {
 			spider.Type(weint.TYPE_INFO)
