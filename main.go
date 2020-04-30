@@ -13,7 +13,7 @@ import (
 
 func main() {
 	app := &cli.App{
-		Version: "0.0.1",
+		Version: "0.0.2",
 		Name:    "A simple tool to get somebody's weibo data",
 		Flags: []cli.Flag{
 			&cli.StringFlag{
