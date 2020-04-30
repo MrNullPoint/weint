@@ -21,10 +21,10 @@ NAME:
    A simple tool to get somebody's weibo data - A new cli application
 
 USAGE:
-   weint-v0.0.1-linux-amd64 [global options] command [command options] [arguments...]
+   weint-v0.0.2-linux-amd64 [global options] command [command options] [arguments...]
 
 VERSION:
-   0.0.1
+   0.0.2
 
 COMMANDS:
    help, h  Shows a list of commands or help for one command
@@ -34,7 +34,7 @@ GLOBAL OPTIONS:
    --info, -i                 set to get user's profile (default: false)
    --weibo, -w                set to get user's weibo list (default: false)
    --quick, -q                set to use quick mode, best practice is to use a proxy pool when set this flag (default: false)
-   --proxy value, -p value    set proxy[暂不支持]
+   --proxy value, -p value    set proxy
    --out value, -o value      set output type, csv/json/db/elastic
    --file value, -f value     set output filename
    --elastic value, -e value  set elastic search address (default: 127.0.0.1:9200)
@@ -84,6 +84,12 @@ $ weint -u 用户id -w -o db -f output.db
 
 ```shell
 $ weint -u 用户id -w -o elastic -e 127.0.0.1:9200
+```
+
+- 指定代理，支持 http 和 https
+
+```shell
+$ weint -u 用户id -p http://127.0.0.1:1080
 ```
 
 - 快速采集模式（不推荐）
@@ -170,11 +176,32 @@ if err := spider.Run(); err != nil {
 }
 ```
 
+- 设置代理
+
+```go
+spider := weint.NewSpider()
+uri := url.URL{}
+proxy, _ := uri.Parse("http://127.0.0.1:1080")
+
+spider.Client(&http.Client{
+	Transport: &http.Transport{
+		Proxy: http.ProxyURL(proxy),
+	},
+})
+
+spider.Type(weint.TYPE_INFO)
+spider.Type(weint.TYPE_WEIBO)
+
+if err := spider.Run(); err != nil {
+	t.Error(err)
+}
+```
+
 ## TODO
 
 - [ ] 获取指定用户粉丝和关注者
 - [ ] 支持限制返回
-- [ ] 支持代理
+- [x] 支持代理
 - [ ] 增加 godoc
 
 ## Inspired By
