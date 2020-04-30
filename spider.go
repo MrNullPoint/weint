@@ -198,6 +198,12 @@ func NewSpider() *Spider {
 	return s
 }
 
+// @function: 设置 client
+func (s *Spider) Client(c *http.Client) *Spider {
+	s.client = c
+	return s
+}
+
 // @function: 设置微博用户的 id
 func (s *Spider) Uid(uid string) *Spider {
 	s.uid = uid
